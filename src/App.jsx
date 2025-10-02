@@ -1,35 +1,55 @@
+import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
+
 import { useState } from 'react';
-import useRoomStore from './store/useRoomStore';
 import Dashboard from './components/Dashboard';
 import RoomForm from './components/RoomForm';
 import DesignStudio from './components/DesignStudio';
 import ControlPanel from './components/ControlPanel';
 
-function App() {
-  const { currentStep } = useRoomStore();
+import SignupPage from './pages/SignupPage';
+import { AuthProvider, useAuth } from './contexts/AuthContext.jsx';
+import LoginPage from './pages/LoginPage';
+import VerifyOTPPage from './pages/VerifyOTPPage';
+import HomePage from './components/HomePage.jsx';
+import ProtectedRoute from './components/ProtectedRoute.jsx';
 
-  const renderStep = () => {
-    switch (currentStep) {
-      case 'dashboard':
-        return <Dashboard />;
-      case 'form':
-        return <RoomForm />;
-      case 'design':
-        return <DesignStudio />;
-      default:
-        return <Dashboard />;
-    }
-  };
+function App() {
+  
 
   return (
-    <>
-      <div className="w-full min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
-        {renderStep()}
-      </div>
+    // <>
+    //   <div className="w-full min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+    //     {renderStep()}
+    //   </div>
       
-      {/* Control Panel - Only show in design mode */}
-      {currentStep === 'design' && <ControlPanel />}
-    </>
+    //   {/* Control Panel - Only show in design mode */}
+    //   {currentStep === 'design' && <ControlPanel />}
+    // </>
+    <AuthProvider>
+
+    <Router>
+      <div className="App">
+        <Routes>
+          {/* Landing Page */}
+          <Route path="/" element={
+            <ProtectedRoute>
+              <HomePage></HomePage>
+            </ProtectedRoute>
+          } 
+          
+          />
+
+           {/* Authentication Routes */}
+          <Route path="/signup" element={<SignupPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/verify-otp" element={<VerifyOTPPage />} />
+          {/* <Route path="/forgot-password" element={<ForgotPasswordPage />} /> */}
+          
+      
+        </Routes>
+      </div>
+    </Router>
+    </AuthProvider>
   );
 }
 
