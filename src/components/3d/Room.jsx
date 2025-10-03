@@ -1,5 +1,6 @@
-import { useMemo } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
+import { useFrame } from '@react-three/fiber';
 
 const Room = ({ config }) => {
   const { length, width, height, wallColor, doors, windows } = config;
@@ -108,15 +109,15 @@ const Wall = ({ position, rotation, size, color, hasDoor, hasWindow }) => {
     if (hasDoor) {
       const doorWidth = 0.9;
       const doorHeight = 2.1;
-      const doorX = -doorWidth / 2;
+      const doorX = -hw + doorWidth / 2 + 0.1; // left offset 
       const doorY = -hh;
 
       const hole = new THREE.Path();
-      hole.moveTo(doorX, doorY);
-      hole.lineTo(doorX + doorWidth, doorY);
-      hole.lineTo(doorX + doorWidth, doorY + doorHeight);
-      hole.lineTo(doorX, doorY + doorHeight);
-      hole.lineTo(doorX, doorY);
+      hole.moveTo(doorX - doorWidth / 2, doorY);
+      hole.lineTo(doorX + doorWidth / 2, doorY);
+      hole.lineTo(doorX + doorWidth / 2, doorY + doorHeight);
+      hole.lineTo(doorX - doorWidth / 2, doorY + doorHeight);
+      hole.lineTo(doorX - doorWidth / 2, doorY);
       shape.holes.push(hole);
     }
 
@@ -128,11 +129,11 @@ const Wall = ({ position, rotation, size, color, hasDoor, hasWindow }) => {
       const windowY = hh - windowHeight - 0.5;
 
       const hole = new THREE.Path();
-      hole.moveTo(windowX, windowY);
-      hole.lineTo(windowX + windowWidth, windowY);
-      hole.lineTo(windowX + windowWidth, windowY + windowHeight);
-      hole.lineTo(windowX, windowY + windowHeight);
-      hole.lineTo(windowX, windowY);
+      hole.moveTo(windowX - windowWidth / 2, windowY);
+      hole.lineTo(windowX + windowWidth / 2, windowY);
+      hole.lineTo(windowX + windowWidth / 2, windowY + windowHeight);
+      hole.lineTo(windowX - windowWidth / 2, windowY + windowHeight);
+      hole.lineTo(windowX - windowWidth / 2, windowY);
       shape.holes.push(hole);
     }
 
@@ -169,14 +170,40 @@ const Wall = ({ position, rotation, size, color, hasDoor, hasWindow }) => {
 
       {/* Door frame */}
       {hasDoor && (
-        <mesh position={[0, -wallHeight / 2 + 1.05, wallDepth / 2 + 0.01]}>
-          <planeGeometry args={[0.9, 2.1]} />
-          <meshStandardMaterial color="#654321" side={THREE.DoubleSide} />
-        </mesh>
+        <SwingDoor wallWidth={wallWidth} wallHeight={wallHeight} wallDepth={wallDepth} />
       )}
     </group>
   );
 };
+
+// Swingable Door Component
+const SwingDoor = ({ wallWidth, wallHeight, wallDepth }) => {
+  const doorRef = useRef();
+  const [isOpen, setIsOpen] = useState(false);
+
+  useFrame(() => {
+    if (!doorRef.current) return;
+    const targetRotation = isOpen ? -Math.PI / 2 : 0;
+    doorRef.current.rotation.y = THREE.MathUtils.lerp(
+      doorRef.current.rotation.y,
+      targetRotation,
+      0.1
+    );
+  });
+
+  return (
+    <group
+      position={[-wallWidth / 2 + 0.45 + 0.1, -wallHeight / 2 + 1.05, wallDepth / 2 + 0.1]}
+      onClick={() => setIsOpen(!isOpen)}
+    >
+      <mesh ref={doorRef} position={[0.45, 0, 0]}>
+        <boxGeometry args={[0.9, 2.1, 0.05]} />
+        <meshStandardMaterial color="#654321" />
+      </mesh>
+    </group>
+  );
+};
+
 
 export default Room;
 
