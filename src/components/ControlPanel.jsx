@@ -228,13 +228,13 @@ Generated: ${new Date().toLocaleString()}
           </button>
 
           {/* Export Screenshot */}
-          <button
+          {/* <button
             onClick={handleExportScreenshot}
             className="w-full flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition font-medium text-sm"
           >
             <Camera size={16} />
             Screenshot
-          </button>
+          </button> */}
 
           {/* Export Report */}
           <button

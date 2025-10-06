@@ -5,6 +5,7 @@ import Dashboard from './Dashboard';
 import RoomForm from './RoomForm';
 import DesignStudio from './DesignStudio';
 import './LandingPage.css';
+import ControlPanel from './ControlPanel';
 function HomePage() {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
@@ -58,6 +59,7 @@ function HomePage() {
         </div>
       </header>
          {renderStep()}
+         {currentStep === 'design' && <ControlPanel />}
        </div>
   );
 }
